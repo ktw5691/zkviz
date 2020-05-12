@@ -18,10 +18,11 @@ from textwrap import fill
 PAT_ZK_ID = re.compile(r"^(?P<id>\d+)")
 # Handle Wiki style links in form ""[[202005111055 A description here]]""
 #  by just extracting the numeric ID: "202005111055"
-PAT_LINK = re.compile(r"\[\[(\d+)(?:\s*\w*)*\]\]")
+PAT_LINK = re.compile(r"\[\[(\d+)(?:[\s*\w*\(*\)*])*\]\]")
 # Capture note title from YAML header: "title: A note title goes here"
 #   will yield "A note title goes here"
-PAT_NOTE_TITLE = re.compile(r"title\:\s([\w\s]+)")
+# PAT_NOTE_TITLE = re.compile(r"title\:\s([\w\s\(\)\"\'\:\d]+)\n")
+PAT_NOTE_TITLE = re.compile(r"title\:\s(.+)\n")
 
 def parse_zettels(filepaths):
     """ Parse the ID and title from the filename.
@@ -38,11 +39,21 @@ def parse_zettels(filepaths):
             continue
 
         with open(filepath, encoding="utf-8") as f:
-            links = PAT_LINK.findall(f.read())
-            note_title = PAT_NOTE_TITLE.search(f.read())
-
-        document = dict(id=r.group(1), title=note_title.group(0), links=links)
+            con = f.read()
+            links = PAT_LINK.findall(con)
+            note_title = PAT_NOTE_TITLE.search(con)
+            print(note_title)
+            if note_title is None:
+                note_title = r.group(1)
+                print("Found title: " + note_title)
+                document = dict(id=r.group(1), title=note_title,
+                                links=links)
+            else:
+                print(note_title.group(1))
+                document = dict(id=r.group(1), title=note_title.group(1),
+                                links=links)
         documents.append(document)
+        print("Finished file: " + r.group(0))
     return documents
 
 
@@ -175,7 +186,7 @@ def main(args=None):
         raise FileNotFoundError("I'm sorry, I couldn't find any files.")
 
     if args.use_graphviz:
-        from zkviz.graphviz import NetworkGraphviz
+        from graphviz_loc import NetworkGraphviz
         import graphviz
 
         try:
@@ -191,7 +202,7 @@ def main(args=None):
             )
         graph = NetworkGraphviz()
     else:
-        from zkviz.plotly import NetworkPlotly
+        from plotly_loc import NetworkPlotly
 
         graph = NetworkPlotly()
 
