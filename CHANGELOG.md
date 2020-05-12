@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0.1] - 2020-05-12
+
+## Changed
+* Assume that file names are in format YYYYMMDDHHMM.* (e.g., 202005121111.md)
+* Support wiki-style links in notes (e.g., "[[202005121111 A description]]")
+* Get note title from YAML header (e.g., title: A note title) instead of from
+file name
+
 ## [1.3.0] - 2019-08-10
 
 ### New

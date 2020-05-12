@@ -12,15 +12,21 @@ import os.path
 import re
 from textwrap import fill
 
-
-PAT_ZK_ID = re.compile(r"^(?P<id>\d+)\s(.*)")
-PAT_LINK = re.compile(r"\[\[(\d+)\]\]")
-
+# (?P<name>...)
+# Similar to regular parentheses, but the substring matched by the group is accessible via the symbolic group name name. Group names must be valid Python identifiers, and each group name must be defined only once within a regular expression. A symbolic group is also a numbered group, just as if the group were not named.
+# Assumes that the filename has the format "YYYYMMDDHHMMSS"
+PAT_ZK_ID = re.compile(r"^(?P<id>\d+)")
+# Handle Wiki style links in form ""[[202005111055 A description here]]""
+#  by just extracting the numeric ID: "202005111055"
+PAT_LINK = re.compile(r"\[\[(\d+)(?:\s*\w*)*\]\]")
+# Capture note title from YAML header: "title: A note title goes here"
+#   will yield "A note title goes here"
+PAT_NOTE_TITLE = re.compile(r"title\:\s([\w\s]+)")
 
 def parse_zettels(filepaths):
     """ Parse the ID and title from the filename.
 
-    Assumes that the filename has the format "YYYYMMDDHHMMSS This is title"
+    Assumes that the filename has the format "YYYYMMDDHHMMSS"
 
     """
     documents = []
@@ -33,8 +39,9 @@ def parse_zettels(filepaths):
 
         with open(filepath, encoding="utf-8") as f:
             links = PAT_LINK.findall(f.read())
+            note_title = PAT_NOTE_TITLE.search(f.read())
 
-        document = dict(id=r.group(1), title=r.group(2), links=links)
+        document = dict(id=r.group(1), title=note_title.group(0), links=links)
         documents.append(document)
     return documents
 
