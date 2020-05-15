@@ -42,14 +42,13 @@ def parse_zettels(filepaths):
             con = f.read()
             links = PAT_LINK.findall(con)
             note_title = PAT_NOTE_TITLE.search(con)
-            print(note_title)
             if note_title is None:
                 note_title = r.group(1)
                 print("Found title: " + note_title)
                 document = dict(id=r.group(1), title=note_title,
                                 links=links)
             else:
-                print(note_title.group(1))
+                print("Found title: " + note_title.group(1))
                 document = dict(id=r.group(1), title=note_title.group(1),
                                 links=links)
         documents.append(document)
